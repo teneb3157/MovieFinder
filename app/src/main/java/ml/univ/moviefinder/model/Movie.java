@@ -1,31 +1,31 @@
 package ml.univ.moviefinder.model;
 
 public class Movie {
-    private String title;
-    private String director;
-    private int year;
-    private double rating;
+    private final String imdbId;
+    private final String title;
+    private final String year;
+    private final String poster;
 
-    public Movie(String title, String director, int year, double rating) {
+    public Movie(String imdbId, String title, String year, String poster) {
+        this.imdbId = imdbId;
         this.title = title;
-        this.director = director;
         this.year = year;
-        this.rating = rating;
+        this.poster = poster;
+    }
+
+    public String getImdbId() {
+        return imdbId;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getDirector() {
-        return director;
-    }
-
-    public int getYear() {
+    public String getYear() {
         return year;
     }
 
-    public double getRating() {
-        return rating;
+    public String getPoster() {
+        return poster;
     }
 }

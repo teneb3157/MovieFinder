@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MovieFinder</string>
+    <string name="hint_query">Search a movie…</string>
+    <string name="btn_search">Search</string>
+    <string name="msg_welcome">Movie list</string>
+    <string name="msg_no_result">No movie found</string>
+</resources>
