@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MovieFinder</string>
+    <string name="app_title">MovieFinder</string>
+    <string name="hint_query">Titre d\'un film</string>
+    <string name="btn_search">Rechercher</string>
+    <string name="msg_welcome">Saisissez un titre puis appuyez sur Rechercher</string>
+    <string name="msg_empty">Saisissez un titre avant de rechercher</string>
+    <string name="msg_searching">Recherche de \u00ab %1$s \u00bb...</string>
+</resources>
