@@ -8,4 +8,9 @@
     <string name="msg_searching">Recherche de \u00ab %1$s \u00bb...</string>
     <string name="cd_poster">Affiche du film</string>
     <string name="msg_no_result">Aucun film trouvé</string>
+    <string name="action_favorites">Favoris</string>
+    <string name="btn_add_favorite">Ajouter aux favoris</string>
+    <string name="btn_remove_favorite">Retirer des favoris</string>
+    <string name="msg_no_favorites">Aucun favori</string>
+    <string name="btn_share">Partager</string>
 </resources>

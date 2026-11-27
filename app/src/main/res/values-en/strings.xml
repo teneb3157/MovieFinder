@@ -1,8 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MovieFinder</string>
-    <string name="hint_query">Search a movie…</string>
+    <string name="app_title">MovieFinder</string>
+    <string name="hint_query">Movie title</string>
     <string name="btn_search">Search</string>
-    <string name="msg_welcome">Movie list</string>
+    <string name="msg_welcome">Enter a title then tap Search</string>
+    <string name="msg_empty">Enter a title before searching</string>
+    <string name="msg_searching">Searching for \u00ab %1$s \u00bb…</string>
+    <string name="cd_poster">Movie poster</string>
     <string name="msg_no_result">No movie found</string>
+    <string name="action_favorites">Favorites</string>
 </resources>

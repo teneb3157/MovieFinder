@@ -1,6 +1,11 @@
 package ml.univ.moviefinder;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -8,19 +13,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import ml.univ.moviefinder.adapter.MovieAdapter;
 import ml.univ.moviefinder.databinding.ActivityMainBinding;
-import ml.univ.moviefinder.model.FakeData;
-import ml.univ.moviefinder.model.Movie;
+import ml.univ.moviefinder.viewmodel.MoviesViewModel;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MovieFinder";
+
     private ActivityMainBinding binding;
+    private MoviesViewModel viewModel;
     private MovieAdapter adapter;
 
     @Override
@@ -30,34 +37,77 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
             return insets;
         });
 
-        adapter = new MovieAdapter(movie ->
-                Toast.makeText(this, movie.getTitle(), Toast.LENGTH_SHORT).show());
+        viewModel = new ViewModelProvider(this).get(MoviesViewModel.class);
 
-        int spanCount = getResources().getInteger(R.integer.span_count);
-        binding.rvMovies.setLayoutManager(new GridLayoutManager(this, spanCount));
+        adapter = new MovieAdapter(movie -> {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra(DetailActivity.EXTRA_IMDB_ID, movie.getImdbId());
+            intent.putExtra(DetailActivity.EXTRA_TITLE, movie.getTitle());
+            intent.putExtra(DetailActivity.EXTRA_YEAR, movie.getYear());
+            startActivity(intent);
+        });
+
+        binding.rvMovies.setLayoutManager(new GridLayoutManager(this, 2));
         binding.rvMovies.setAdapter(adapter);
-        adapter.setMovies(FakeData.movies());
 
-        binding.btnSearch.setOnClickListener(v -> onSearchClicked());
+        binding.btnSearch.setOnClickListener(v -> {
+            String query = binding.etQuery.getText() != null
+                    ? binding.etQuery.getText().toString().trim()
+                    : "";
+            if (query.isEmpty()) {
+                Toast.makeText(this, R.string.msg_empty, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            viewModel.search(query);
+        });
+
+        viewModel.getMovies().observe(this, movies -> {
+            if (movies == null || movies.isEmpty()) {
+                adapter.setMovies(Collections.emptyList());
+                binding.rvMovies.setVisibility(View.GONE);
+            } else {
+                adapter.setMovies(movies);
+                binding.rvMovies.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
-    private void onSearchClicked() {
-        String query = binding.etQuery.getText().toString().trim();
-        List<Movie> result = new ArrayList<>();
-        for (Movie m : FakeData.movies()) {
-            if (m.getTitle().toLowerCase().contains(query.toLowerCase())) {
-                result.add(m);
-            }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_favorites) {
+            startActivity(new Intent(this, FavoritesActivity.class));
+            return true;
         }
-        adapter.setMovies(result);
-        binding.tvMessage.setText(result.isEmpty()
-                ? getString(R.string.msg_no_result)
-                : getString(R.string.msg_welcome));
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 }
