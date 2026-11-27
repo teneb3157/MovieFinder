@@ -41,6 +41,7 @@ public class FavoritesActivity extends AppCompatActivity {
         });
 
         store = new FavoritesStore(this);
+
         adapter = new MovieAdapter(movie -> {
             Intent intent = new Intent(this, DetailActivity.class);
             intent.putExtra(DetailActivity.EXTRA_IMDB_ID, movie.getImdbId());
@@ -67,6 +68,7 @@ public class FavoritesActivity extends AppCompatActivity {
                 favoriteMovies.add(movie);
             }
         }
+
         adapter.setMovies(favoriteMovies);
 
         boolean isEmpty = favoriteMovies.isEmpty();
