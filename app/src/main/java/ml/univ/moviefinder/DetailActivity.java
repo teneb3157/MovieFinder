@@ -1,73 +1,66 @@
 package ml.univ.moviefinder;
 
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import ml.univ.moviefinder.data.FavoritesStore;
-import ml.univ.moviefinder.databinding.ActivityDetailBinding;
+import com.bumptech.glide.Glide;
 
 public class DetailActivity extends AppCompatActivity {
 
-    public static final String EXTRA_IMDB_ID = "extra_imdb_id";
-    public static final String EXTRA_TITLE = "extra_title";
-    public static final String EXTRA_YEAR = "extra_year";
-
-    private ActivityDetailBinding binding;
-    private String imdbId;
-    private String title;
-    private String year;
-    private FavoritesStore store;
+    private MovieRepository repository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        binding = ActivityDetailBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_detail);
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
-            return insets;
+        repository = new MovieRepository(this);
+
+        ImageView ivPoster = findViewById(R.id.ivDetailPoster);
+        TextView tvTitle = findViewById(R.id.tvDetailTitle);
+        TextView tvYear = findViewById(R.id.tvDetailYear);
+        TextView tvType = findViewById(R.id.tvDetailType);
+        Button btnAddFavorite = findViewById(R.id.btnAddFavorite);
+
+        String title = getIntent().getStringExtra("EXTRA_TITLE");
+        String year = getIntent().getStringExtra("EXTRA_YEAR");
+        String type = getIntent().getStringExtra("EXTRA_TYPE");
+        String poster = getIntent().getStringExtra("EXTRA_POSTER");
+
+        if (title == null) title = "";
+        if (year == null) year = "";
+        if (type == null) type = "";
+        if (poster == null) poster = "";
+
+        tvTitle.setText(title);
+        tvYear.setText("Année : " + year);
+        tvType.setText("Type : " + (type.isEmpty() ? "movie" : type));
+
+        if (!poster.isEmpty() && !"N/A".equals(poster)) {
+            Glide.with(this).load(poster).into(ivPoster);
+        } else {
+            ivPoster.setImageResource(android.R.drawable.ic_menu_gallery);
+        }
+
+        final String finalTitle = title;
+        final String finalYear = year;
+        final String finalType = type.isEmpty() ? "movie" : type;
+        final String finalPoster = poster;
+
+        btnAddFavorite.setOnClickListener(v -> {
+            String fakeId = finalTitle + "_" + finalYear;
+            FavoriteMovie fav = new FavoriteMovie(
+                    fakeId,
+                    finalTitle,
+                    finalYear,
+                    finalType,
+                    finalPoster
+            );
+            repository.addFavorite(fav);
+            Toast.makeText(DetailActivity.this, "Ajouté aux favoris !", Toast.LENGTH_SHORT).show();
         });
-
-        imdbId = getIntent().getStringExtra(EXTRA_IMDB_ID);
-        title = getIntent().getStringExtra(EXTRA_TITLE);
-        year = getIntent().getStringExtra(EXTRA_YEAR);
-
-        binding.tvDetailTitle.setText(title);
-        binding.tvDetailYear.setText(year);
-
-        store = new FavoritesStore(this);
-        refreshFavoriteButton();
-        binding.btnFavorite.setOnClickListener(v -> {
-            store.toggle(imdbId);
-            refreshFavoriteButton();
-        });
-
-        binding.btnShare.setOnClickListener(v -> shareMovie());
-    }
-
-    private void refreshFavoriteButton() {
-        binding.btnFavorite.setText(store.isFavorite(imdbId)
-                ? R.string.btn_remove_favorite
-                : R.string.btn_add_favorite);
-    }
-
-    private void shareMovie() {
-        String shareText = (title != null ? title : "")
-                + (year != null && !year.isEmpty() ? " (" + year + ")" : "");
-        Intent sendIntent = new Intent(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-        sendIntent.setType("text/plain");
-
-        Intent shareIntent = Intent.createChooser(sendIntent, getString(R.string.btn_share));
-        startActivity(shareIntent);
     }
 }
